@@ -8,3 +8,6 @@ SFTP_HOST=
 SFTP_PORT=
 SFTP_ACCESS_NAME=
 SFTP_PASSWORD=
+
+# Dependencies
+Need pip install -r requirements.txt
