@@ -1,4 +1,4 @@
 .env
-/data/playerdata/*
-/data/pokedex/*
+/data/playerdata/
+/data/pokedex/
 /data/usercache.json
