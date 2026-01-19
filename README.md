@@ -8,6 +8,7 @@ SFTP_HOST=
 SFTP_PORT=
 SFTP_ACCESS_NAME=
 SFTP_PASSWORD=
+JSON_EXPORT_PATH=
 
 ## Dependencies
 Need pip install -r requirements.txt

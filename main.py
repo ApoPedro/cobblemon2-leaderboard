@@ -78,7 +78,7 @@ def parse_data(pokedex_files_path, playerdata_file_path) -> dict:
     return pokedex_dict
 
   
-def send_on_discord(df: pd.DataFrame):
+def send_on_discord(df: pd.DataFrame) -> None:
     webhook = DiscordWebhook(url=webhook_url)
     embed = DiscordEmbed(
         title="Pokedex leaderboard", description="", color="03b2f8"
@@ -97,7 +97,6 @@ def send_on_discord(df: pd.DataFrame):
         embed.add_embed_field(name=pseudo +" - "+pokedex+"/1025", value="",inline=False)
 
     webhook.add_embed(embed)
-    ##response = webhook.execute()
     embed = DiscordEmbed(
         title="Captures leaderboard", description="", color="03b2f8"
     )
@@ -129,13 +128,23 @@ def get_pseudo(uuid):
     return None
 
 
+def convert_into_json(df: pd.DataFrame, json_export_path: str) -> None:
+    df_with_pseudo = {}
+    for (uuid, values) in df.iterrows():
+        pseudo = get_pseudo(uuid)
+        df_with_pseudo[pseudo] = {}
+        df_with_pseudo[pseudo]["pokedex"] = values["pokedex"]
+        df_with_pseudo[pseudo]["totalCapture"] = values["totalCapture"]
+    
+    pd.DataFrame.from_dict(df_with_pseudo, orient="index").to_json(json_export_path, orient='index')
+
+
 CWD = os.getcwd()
 DATA_FILE_PATH = CWD + "/data"
 POKEDEX_FILE_PATH = CWD + "/data/pokedex"
 PLAYERDATA_FILE_PATH = CWD + "/data/playerdata"
 
 
-print(POKEDEX_FILE_PATH)
 clean_data(POKEDEX_FILE_PATH)
 clean_data(PLAYERDATA_FILE_PATH)
 load_dotenv()
@@ -143,7 +152,7 @@ username = os.getenv("SFTP_ACCESS_NAME")
 hostname = os.getenv("SFTP_HOST")
 password = os.getenv("SFTP_PASSWORD")
 webhook_url = os.getenv("WEBHOOK_URL")
-
+json_export_path = os.getenv("EXPORT_JSON_PATH")
 
 transport = paramiko.Transport(hostname, 22)
 transport.connect(username=username, password=password)
@@ -154,3 +163,4 @@ get_usrcache(ftp_server)
 playerdata_dict = parse_data(POKEDEX_FILE_PATH, PLAYERDATA_FILE_PATH)
 dataframe = pd.DataFrame.from_dict(playerdata_dict, orient="index")
 send_on_discord(dataframe)
+convert_into_json(dataframe, json_export_path)
